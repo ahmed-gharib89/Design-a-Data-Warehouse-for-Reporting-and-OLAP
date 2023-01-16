@@ -1,9 +1,10 @@
+from ast import Continue
 import json
 from glob import glob
 
 # Set the number of lines per file
 lines_per_file = 2000000
-files = glob('*.json')
+files = glob('./data/*.json')
 
 for file in files:
     # Open the input file
@@ -11,6 +12,7 @@ for file in files:
         print(file)
         # Read the input file line by line
         lines = input_file.readlines()
+        print(len(lines))
         # Initialize the output file number
         output_file_number = 1
         # Initialize a list to store the lines for the current output file

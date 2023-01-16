@@ -25,6 +25,10 @@ CREATE OR REPLACE SCHEMA ODS;
 -- Creating a new schema DWH
 CREATE OR REPLACE SCHEMA DWH;
 
+USE WAREHOUSE COMPUTE_WH;
+USE DATABASE YELP;
+USE SCHEMA STAGING;
+
 -- Creating a new file format for csv
 CREATE OR REPLACE FILE FORMAT CSV_FILE_FORMAT 
 TYPE = 'CSV'
@@ -49,9 +53,6 @@ STRIP_OUTER_ARRAY = TRUE;
 CREATE OR REPLACE STAGE JSON_STAGE file_format = JSON_FILE_FORMAT;
 
 -- Creating a new tables in STAGING schema for business, COVID, Check_in, Review, Tips and Customer
-USE WAREHOUSE COMPUTE_WH;
-USE DATABASE YELP;
-USE SCHEMA STAGING;
 CREATE OR REPLACE TABLE business (v VARIANT);
 CREATE OR REPLACE TABLE covid (v VARIANT);
 CREATE OR REPLACE TABLE check_in (v VARIANT);
@@ -59,13 +60,11 @@ CREATE OR REPLACE TABLE review (v VARIANT);
 CREATE OR REPLACE TABLE tips (v VARIANT);
 CREATE OR REPLACE TABLE customer (v VARIANT);
 
-CREATE OR REPLACE TABLE precipitation (date DATE, precipitation STRING, precipitation_normal FLOAT);
-CREATE OR REPLACE TABLE temperature (date DATE, min FLOAT, max FLOAT, normal_min FLOAT, normal_max FLOAT);
+CREATE OR REPLACE TABLE precipitation (date VARCHAR, precipitation STRING, precipitation_normal FLOAT);
+CREATE OR REPLACE TABLE temperature (date VARCHAR, min FLOAT, max FLOAT, normal_min FLOAT, normal_max FLOAT);
 
 -- Copy data from local to snowflake stage
-USE WAREHOUSE COMPUTE_WH;
-USE DATABASE YELP;
-USE SCHEMA STAGING;
+
 PUT file://./data/yelp_academic_dataset_covid_features.json @JSON_STAGE auto_compress=true;
 PUT file://./data/yelp_academic_dataset_business.json @JSON_STAGE auto_compress=true;
 PUT file://./data/yelp_academic_dataset_checkin.json @JSON_STAGE auto_compress=true;
@@ -77,9 +76,7 @@ PUT file://./data/usw00023169-las-vegas-mccarran-intl-ap-precipitation-inch.csv 
 PUT file://./data/usw00023169-temperature-degreef.csv @CSV_STAGE auto_compress=true;
 
 -- Copy data from snowflake stage to snowflake tables
-USE WAREHOUSE COMPUTE_WH;
-USE DATABASE YELP;
-USE SCHEMA STAGING;
+
 COPY INTO business FROM @JSON_STAGE/yelp_academic_dataset_business.json.gz;
 COPY INTO covid FROM @JSON_STAGE/yelp_academic_dataset_covid_features.json.gz;
 COPY INTO check_in FROM @JSON_STAGE/yelp_academic_dataset_checkin.json.gz;
@@ -89,4 +86,3 @@ COPY INTO customer FROM @JSON_STAGE/yelp_academic_dataset_user.json.gz;
 
 COPY INTO precipitation FROM @CSV_STAGE/usw00023169-las-vegas-mccarran-intl-ap-precipitation-inch.csv.gz;
 COPY INTO temperature FROM @CSV_STAGE/usw00023169-temperature-degreef.csv.gz;
-
